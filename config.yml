@@ -1,0 +1,40 @@
+backend:
+  name: github
+  repo: YOUR-GITHUB-USERNAME/YOUR-REPO-NAME   # <- change this
+  branch: main
+media_folder: "uploads"
+public_folder: "/uploads"
+collections:
+  - name: portfolio
+    label: Portfolio
+    files:
+      - name: videos
+        label: Videos
+        file: videos.json
+        fields:
+          - label: Videos
+            name: items
+            widget: list
+            summary: "{{fields.title}}"
+            fields:
+              - {label: Title, name: title, widget: string}
+              - {label: "YouTube or Vimeo link", name: url, widget: string}
+              - {label: Description, name: description, widget: string, required: false}
+      - name: images
+        label: Images
+        file: images.json
+        fields:
+          - label: Images
+            name: items
+            widget: list
+            summary: "{{fields.title}}"
+            fields:
+              - {label: Title, name: title, widget: string}
+              - {label: Image, name: image, widget: image}
+              - {label: Description, name: description, widget: string, required: false}
+      - name: settings
+        label: Site Settings
+        file: settings.json
+        fields:
+          - {label: Your name, name: name, widget: string}
+          - {label: Tagline, name: tagline, widget: string, required: false}

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My Portfolio</title>
+<style>
+:root{--bg:#fafaf8;--fg:#1a1a1a;--mut:#666;--card:#fff;--line:#e5e5e0}
+@media(prefers-color-scheme:dark){:root{--bg:#121212;--fg:#f0f0ee;--mut:#9a9a9a;--card:#1c1c1c;--line:#2c2c2c}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,sans-serif;line-height:1.5}
+header{padding:64px 24px 24px;text-align:center}h1{margin:0;font-size:2.4rem}header p{color:var(--mut);margin:8px 0 0}
+nav{display:flex;gap:20px;justify-content:center;padding:16px;position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--line)}
+nav a{color:var(--fg);text-decoration:none;font-weight:600}
+section{max-width:1100px;margin:0 auto;padding:40px 24px}h2{margin:0 0 20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.card img{width:100%;display:block;aspect-ratio:4/3;object-fit:cover;cursor:zoom-in}
+.card .v{aspect-ratio:16/9}.card iframe{width:100%;height:100%;border:0}
+.card div.t{padding:12px 14px}.card h3{margin:0;font-size:1rem}.card p{margin:4px 0 0;color:var(--mut);font-size:.9rem}
+.empty{color:var(--mut)}footer{text-align:center;color:var(--mut);padding:40px}
+#lb{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);align-items:center;justify-content:center;z-index:9;cursor:zoom-out}
+#lb img{max-width:94vw;max-height:94vh}
+</style></head><body>
+<header><h1 id="name">Your Name</h1><p id="tag">Videos &amp; images I’ve created</p></header>
+<nav><a href="#videos">Videos</a><a href="#images">Images</a></nav>
+<section id="videos"><h2>Videos</h2><div class="grid" id="vg"></div></section>
+<section id="images"><h2>Images</h2><div class="grid" id="ig"></div></section>
+<footer id="foot"></footer>
+<div id="lb"><img alt=""></div>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function embed(u){
+  let m=u.match(/(?:youtu\.be\/|v=|shorts\/|embed\/)([\w-]{11})/);
+  if(m)return"https://www.youtube.com/embed/"+m[1];
+  m=u.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  return m?"https://player.vimeo.com/video/"+m[1]:null;
+}
+async function load(f){try{const r=await fetch(f+"?t="+Date.now());return await r.json()}catch(e){return {}}}
+(async()=>{
+  const s=await load("settings.json");
+  if(s.name){$("#name").textContent=s.name;document.title=s.name}
+  if(s.tagline)$("#tag").textContent=s.tagline;
+  $("#foot").textContent="© "+new Date().getFullYear()+" "+(s.name||"");
+  const v=((await load("videos.json")).items||[]).map(i=>({...i,e:embed(i.url||"")})).filter(i=>i.e);
+  $("#vg").innerHTML=v.length?v.map(i=>`<div class="card"><div class="v"><iframe src="${esc(i.e)}" allowfullscreen loading="lazy"></iframe></div><div class="t"><h3>${esc(i.title)}</h3><p>${esc(i.description)}</p></div></div>`).join(""):'<p class="empty">No videos yet.</p>';
+  const im=(await load("images.json")).items||[];
+  $("#ig").innerHTML=im.length?im.map(i=>`<div class="card"><img src="${esc(i.image)}" alt="${esc(i.title)}" loading="lazy"><div class="t"><h3>${esc(i.title)}</h3><p>${esc(i.description)}</p></div></div>`).join(""):'<p class="empty">No images yet.</p>';
+  document.querySelectorAll(".card img").forEach(x=>x.onclick=()=>{$("#lb img").src=x.src;$("#lb").style.display="flex"});
+  $("#lb").onclick=()=>$("#lb").style.display="none";
+})();
+</script></body></html>
